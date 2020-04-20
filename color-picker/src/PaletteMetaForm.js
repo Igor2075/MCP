@@ -1,17 +1,18 @@
 import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { Picker } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 
 class PaletteMetaForm extends Component {
 	state = {
 		open: true,
 		newPaletteName: "",
+		stage: "form",
 	};
 
 	componentDidMount() {
@@ -31,29 +32,48 @@ class PaletteMetaForm extends Component {
 	};
 
 	handleClose = () => {
+		this.setState({ stage: "form" });
 		this.props.hideForm();
 	};
 
+	showEmojiPicker = () => {
+		this.setState({ stage: "emoji" });
+	};
+
+	savePalette = (emoji) => {
+		this.setState({ stage: "form" });
+		this.props.handleSubmit({
+			paletteName: this.state.newPaletteName,
+			emoji: emoji.native,
+		});
+	};
+
 	render() {
-		const { open, newPaletteName } = this.state;
-		const { palettes } = this.props;
+		const { newPaletteName, stage } = this.state;
+
 		return (
 			<div>
+				<Dialog open={stage === "emoji"} onClose={this.handleClose}>
+        <DialogTitle id="form-dialog-title">
+        Pick an emoji
+					</DialogTitle>
+					<Picker title="Pick an emoji" onSelect={this.savePalette} />
+				</Dialog>
 				<Dialog
-					open={open}
+					open={stage === "form"}
 					onClose={this.handleClose}
 					aria-labelledby="form-dialog-title">
 					<DialogTitle id="form-dialog-title">
 						Choose a Palette Name
 					</DialogTitle>
-					<ValidatorForm
-						onSubmit={() => this.props.handleSubmit(newPaletteName)}>
+					<ValidatorForm onSubmit={this.showEmojiPicker}>
 						<DialogContent>
 							<DialogContent>
 								Please enter an unique name for your new palette.
 							</DialogContent>
+
 							<TextValidator
-								value={this.state.newPaletteName}
+								value={newPaletteName}
 								name="newPaletteName"
 								placeholder="Palette Name"
 								onChange={this.handleChange}
