@@ -12,6 +12,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { Button } from "@material-ui/core";
 import { arrayMove } from "react-sortable-hoc";
 import DraggableColorList from "./DraggableColorList";
+import seedColors from "./seedColors";
 
 class NewPaletteForm extends Component {
 	static defaultProps = {
@@ -19,7 +20,7 @@ class NewPaletteForm extends Component {
 	};
 	state = {
 		open: true,
-		colors: [...this.props.palettes[0].colors],
+		colors: seedColors[0].colors,
 	};
 
 	handleDrawerOpen = () => {
@@ -32,13 +33,17 @@ class NewPaletteForm extends Component {
 
 	addRandomColor = () => {
 		const allColors = this.props.palettes.map((p) => p.colors).flat();
-		const rand = Math.floor(Math.random() * allColors.length);
-		let newColor = {
-			name: allColors[rand].name,
-			color: allColors[rand].color,
-		};
+		let isDuplicate = true;
+		let randColor;
+		while (isDuplicate) {
+			let rand = Math.floor(Math.random() * allColors.length);
+			randColor = allColors[rand];
+			isDuplicate = this.state.colors.some(
+				(color) => color.name === randColor.name
+			);
+		}
 		this.setState({
-			colors: [...this.state.colors, newColor],
+			colors: [...this.state.colors, randColor],
 		});
 	};
 
